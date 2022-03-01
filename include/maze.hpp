@@ -6,6 +6,8 @@
 #include <utility>
 #include <vector>
 
+using Point = std::pair<int, int>;
+
 class Direction {
 public:
   enum Value : uint8_t {
@@ -21,7 +23,7 @@ public:
   constexpr operator Value() const;
   explicit operator bool() = delete;
 
-  constexpr std::pair<int, int> delta() const;
+  constexpr Point delta() const;
   constexpr Direction opposite() const;
 
 private:
@@ -30,14 +32,28 @@ private:
 
 class Maze {
 public:
-  Maze(int width, int height);
+  using Cell = uint8_t;
+
+  Maze(size_t width, size_t height);
+  Maze(size_t width, size_t height, Point start, Point end);
+
+  size_t width() const { return data[0].size(); }
+  size_t height() const { return data.size(); }
+  const Point &getStart() const { return start; }
+  const Point &getGoal() const { return goal; }
+  std::vector<Point> neighbors(const Point &point) const;
+
+  std::vector<Cell> &operator[](size_t i) { return data[i]; }
+  const std::vector<Cell> &operator[](size_t i) const { return data[i]; }
 
   friend std::ostream &operator<<(std::ostream &os, const Maze &maze);
 
 private:
-  void carve_from(int cx, int cy);
+  void carve_from(long cx, long cy);
 
-  std::vector<std::vector<uint8_t>> data;
+  std::vector<std::vector<Cell>> data;
   std::default_random_engine rand_engine;
+  Point start;
+  Point goal;
 };
 
